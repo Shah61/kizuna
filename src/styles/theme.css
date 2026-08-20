@@ -1,0 +1,568 @@
+/* ============================================================
+   KIZUNA BLADE — design tokens & primitives
+   Aesthetic: sumi-e ink, washi paper grain, nichirin steel,
+   vermillion torii lacquer, gold leaf.
+   ============================================================ */
+
+:root {
+  /* --- ink / ground --------------------------------------- */
+  --ink-void: #050409;
+  --ink-900: #0a0810;
+  --ink-850: #100d18;
+  --ink-800: #16121f;
+  --ink-700: #1f1a2b;
+  --ink-600: #2b2439;
+  --ink-500: #3a3049;
+
+  /* --- paper / foreground --------------------------------- */
+  --bone: #f4eee2;
+  --bone-2: #ddd3c2;
+  --bone-dim: #9a9081;
+  --bone-faint: #635b52;
+
+  /* --- lacquer accents ------------------------------------ */
+  --crimson: #d7263d;
+  --crimson-deep: #8e1226;
+  --vermillion: #f04e2a;
+  --gold: #e2b558;
+  --gold-deep: #9a7526;
+  --jade: #35b79b;
+  --indigo: #4661d9;
+  --murasaki: #8a4fd3;
+
+  /* --- breathing style accent (overridden at runtime) ------ */
+  --accent: #4fc3f7;
+  --accent-2: #2a7fd4;
+  --accent-glow: rgba(79, 195, 247, 0.55);
+  --accent-soft: rgba(79, 195, 247, 0.12);
+
+  /* --- judgement ------------------------------------------ */
+  --judge-kiwami: #ffd76a;
+  --judge-zan: #6fe3c4;
+  --judge-kasuri: #6aa8ff;
+  --judge-shitsu: #ff5c6e;
+
+  /* --- type ----------------------------------------------- */
+  --font-jp: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Shippori Mincho",
+    "Noto Serif JP", "MS PMincho", serif;
+  --font-jp-sans: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Meiryo",
+    sans-serif;
+  --font-ui: "Avenir Next", "Segoe UI", "Helvetica Neue", Inter, system-ui,
+    sans-serif;
+  --font-num: "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  /* --- geometry ------------------------------------------- */
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 10px;
+  --hair: rgba(244, 238, 226, 0.14);
+  --hair-strong: rgba(244, 238, 226, 0.3);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-blade: cubic-bezier(0.2, 0.9, 0.1, 1);
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   reset
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--ink-void);
+  color: var(--bone);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  cursor: default;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-600);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-500);
+}
+
+/* ============================================================
+   app shell + atmosphere
+   ============================================================ */
+.app {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--ink-void);
+}
+
+/* macOS traffic-light safe zone */
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 34px;
+  -webkit-app-region: drag;
+  z-index: 900;
+  pointer-events: auto;
+}
+
+/*
+ * Washi paper grain.
+ *
+ * This used to be inset -50% (four times the viewport area) with a transform
+ * animation, on a mix-blend-mode layer. Blending forces everything beneath it
+ * into a render surface, and animating a transform on a layer that large means
+ * re-rasterising all of it every frame. Now it is exactly viewport-sized and
+ * only its opacity animates, which the compositor handles without any repaint.
+ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  will-change: opacity;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+  animation: grain-flicker 4s steps(5) infinite;
+}
+
+/* Opacity-only: compositor work, no raster. */
+@keyframes grain-flicker {
+  0%, 100% { opacity: 0.15; }
+  25% { opacity: 0.185; }
+  50% { opacity: 0.13; }
+  75% { opacity: 0.17; }
+}
+
+/* corner vignette keeps the eye centred on the play field */
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 790;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 120% 90% at 50% 45%,
+    transparent 35%,
+    rgba(5, 4, 9, 0.55) 78%,
+    rgba(5, 4, 9, 0.92) 100%
+  );
+}
+
+/* ============================================================
+   screen transitions
+   ============================================================ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-enter {
+  animation: screen-in 0.5s var(--ease-out) both;
+}
+.screen-exit {
+  animation: screen-out 0.28s var(--ease-in-out) both;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.995); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes screen-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-10px) scale(1.01); filter: blur(4px); }
+}
+
+/* full-screen ink wipe used between menu and gameplay */
+.ink-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  pointer-events: none;
+  background: var(--ink-void);
+  clip-path: inset(0 0 100% 0);
+}
+.ink-wipe.cover {
+  animation: wipe-cover 0.42s var(--ease-blade) forwards;
+}
+.ink-wipe.reveal {
+  animation: wipe-reveal 0.55s var(--ease-out) forwards;
+}
+@keyframes wipe-cover {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes wipe-reveal {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(100% 0 0 0); }
+}
+
+/* ============================================================
+   typography primitives
+   ============================================================ */
+.kanji {
+  font-family: var(--font-jp);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.kanji-vertical {
+  font-family: var(--font-jp);
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.3em;
+}
+
+.romaji {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--bone-dim);
+}
+
+.eyebrow {
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--bone-faint);
+}
+
+.num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* gold-leaf gradient text */
+.gilt {
+  background: linear-gradient(
+    180deg,
+    #fff3d0 0%,
+    var(--gold) 42%,
+    var(--gold-deep) 72%,
+    #f7dfa4 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================================================
+   ink rule — a hand-drawn-feeling divider
+   ============================================================ */
+.ink-rule {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--hair-strong) 18%,
+    var(--hair-strong) 82%,
+    transparent
+  );
+  position: relative;
+}
+.ink-rule::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ============================================================
+   buttons
+   ============================================================ */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 13px 30px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone-2);
+  background: linear-gradient(
+    180deg,
+    rgba(244, 238, 226, 0.05),
+    rgba(244, 238, 226, 0.015)
+  );
+  border: 1px solid var(--hair);
+  border-radius: var(--r-sm);
+  transition:
+    color 0.22s var(--ease-out),
+    border-color 0.22s var(--ease-out),
+    background 0.22s var(--ease-out),
+    transform 0.16s var(--ease-out),
+    box-shadow 0.22s var(--ease-out);
+  overflow: hidden;
+}
+
+/* a sheen that sweeps across on hover, like light on a blade */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.16) 48%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.btn:hover:not(:disabled) {
+  color: var(--bone);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 10px 34px -14px var(--accent-glow),
+    inset 0 0 24px -14px var(--accent);
+}
+.btn:hover:not(:disabled)::after {
+  transform: translateX(130%);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+}
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  color: var(--bone);
+  border-color: rgba(215, 38, 61, 0.6);
+  background: linear-gradient(
+    180deg,
+    rgba(215, 38, 61, 0.22),
+    rgba(142, 18, 38, 0.1)
+  );
+}
+.btn-primary:hover:not(:disabled) {
+  border-color: var(--crimson);
+  background: linear-gradient(
+    180deg,
+    rgba(215, 38, 61, 0.4),
+    rgba(142, 18, 38, 0.18)
+  );
+  box-shadow:
+    0 12px 40px -14px rgba(215, 38, 61, 0.9),
+    inset 0 0 26px -12px var(--crimson);
+}
+
+.btn-ghost {
+  border-color: transparent;
+  background: none;
+  color: var(--bone-dim);
+  padding: 10px 18px;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--bone);
+  background: rgba(244, 238, 226, 0.05);
+  border-color: var(--hair);
+  box-shadow: none;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+/* ============================================================
+   panels
+   ============================================================ */
+.panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(22, 18, 31, 0.9), rgba(10, 8, 16, 0.94));
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  backdrop-filter: blur(8px);
+}
+
+/* corner ticks — a small detail that reads as "instrument panel" */
+.panel-ticks::before,
+.panel-ticks::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--accent);
+  opacity: 0.55;
+}
+.panel-ticks::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+.panel-ticks::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============================================================
+   seigaiha (wave) + asanoha background patterns
+   ============================================================ */
+.pattern-seigaiha {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'><g fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.5'><circle cx='30' cy='30' r='28'/><circle cx='30' cy='30' r='20'/><circle cx='30' cy='30' r='12'/><circle cx='30' cy='30' r='5'/><circle cx='0' cy='30' r='28'/><circle cx='0' cy='30' r='20'/><circle cx='0' cy='30' r='12'/><circle cx='60' cy='30' r='28'/><circle cx='60' cy='30' r='20'/><circle cx='60' cy='30' r='12'/></g></svg>");
+  background-size: 60px 30px;
+}
+
+.pattern-asanoha {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='84' viewBox='0 0 48 84'><g fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.4'><path d='M24 0 L48 14 L48 42 L24 56 L0 42 L0 14 Z'/><path d='M24 0 L24 56 M0 14 L48 42 M48 14 L0 42'/></g></svg>");
+  background-size: 48px 84px;
+}
+
+/* ============================================================
+   falling petals (menu ambience)
+   ============================================================ */
+.petal-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.petal {
+  position: absolute;
+  top: -6%;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(140deg, #ffd7e2, #f5889f 60%, #c74d6b);
+  border-radius: 100% 0 100% 0;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(247, 150, 175, 0.35));
+  animation: petal-fall linear infinite;
+}
+
+@keyframes petal-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10vh, 0) rotate3d(1, 1, 0.4, 0deg);
+  }
+  8% { opacity: var(--petal-opacity, 0.7); }
+  92% { opacity: var(--petal-opacity, 0.7); }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--petal-drift, 60px), 112vh, 0)
+      rotate3d(1, 1, 0.4, 900deg);
+  }
+}
+
+/* embers, used by flame-adjacent screens */
+.ember {
+  position: absolute;
+  bottom: -20px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px 2px rgba(240, 78, 42, 0.6);
+  opacity: 0;
+  animation: ember-rise linear infinite;
+}
+
+@keyframes ember-rise {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.6); }
+  10% { opacity: 0.9; }
+  70% { opacity: 0.7; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--ember-drift, 30px), -105vh, 0) scale(0.2);
+  }
+}
+
+/* ============================================================
+   utility
+   ============================================================ */
+.stack { display: flex; flex-direction: column; }
+.row { display: flex; align-items: center; }
+.center { display: flex; align-items: center; justify-content: center; }
+.grow { flex: 1; min-height: 0; min-width: 0; }
+.gap-xs { gap: 6px; }
+.gap-sm { gap: 12px; }
+.gap-md { gap: 20px; }
+.gap-lg { gap: 34px; }
+.dim { color: var(--bone-dim); }
+.faint { color: var(--bone-faint); }
+.nowrap { white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .grain { animation: none; }
+  .petal, .ember { animation-duration: 0.001s; opacity: 0 !important; }
+}
+
+/* ============================================================
+   logo stroke animations
+   ============================================================ */
+@keyframes blade-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes logo-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}

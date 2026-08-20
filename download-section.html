@@ -1,0 +1,255 @@
+<!--
+  Kizuna Blade — download block.
+
+  Paste this into your page. The only thing you must change is the DOWNLOADS
+  object at the top of the <script>: point the three URLs at wherever you
+  uploaded the installers, and set VERSION.
+
+  Self-contained: no frameworks, no external requests. Styles are namespaced
+  under .kb-dl so they will not leak into the rest of your site.
+-->
+
+<section class="kb-dl" id="download">
+  <div class="kb-dl__inner">
+    <p class="kb-dl__eyebrow">絆刃 · KIZUNA BLADE</p>
+    <h2 class="kb-dl__title">Download</h2>
+    <p class="kb-dl__lede">
+      A Demon&nbsp;Slayer–inspired rhythm game. Six breathing styles, a Corps
+      rank ladder, and a chart engine that reads your own music.
+    </p>
+
+    <div class="kb-dl__primary" id="kb-primary"></div>
+
+    <details class="kb-dl__more">
+      <summary>Other platforms</summary>
+      <div class="kb-dl__list" id="kb-others"></div>
+    </details>
+
+    <p class="kb-dl__note" id="kb-note"></p>
+  </div>
+</section>
+
+<style>
+  .kb-dl {
+    --kb-ink: #05040a;
+    --kb-bone: #f4eee2;
+    --kb-dim: #9a9081;
+    --kb-faint: #635b52;
+    --kb-crimson: #d7263d;
+    --kb-gold: #e2b558;
+    --kb-hair: rgba(244, 238, 226, 0.14);
+
+    position: relative;
+    padding: 96px 24px;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(215, 38, 61, 0.16), transparent 70%),
+      var(--kb-ink);
+    color: var(--kb-bone);
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+    overflow: hidden;
+  }
+
+  .kb-dl__inner {
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .kb-dl__eyebrow {
+    margin: 0 0 18px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.44em;
+    color: var(--kb-faint);
+    text-transform: uppercase;
+  }
+
+  .kb-dl__title {
+    margin: 0 0 18px;
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: linear-gradient(180deg, #fff3d0, var(--kb-gold) 45%, #9a7526 75%, #f7dfa4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .kb-dl__lede {
+    margin: 0 auto 40px;
+    max-width: 460px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--kb-dim);
+  }
+
+  .kb-dl__primary {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+
+  .kb-dl__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px 38px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--kb-bone);
+    background: linear-gradient(180deg, rgba(215, 38, 61, 0.3), rgba(142, 18, 38, 0.14));
+    border: 1px solid rgba(215, 38, 61, 0.6);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+  }
+  .kb-dl__btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.18) 48%, transparent 62%);
+    transform: translateX(-130%);
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .kb-dl__btn:hover {
+    border-color: var(--kb-crimson);
+    box-shadow: 0 14px 44px -16px rgba(215, 38, 61, 0.95);
+  }
+  .kb-dl__btn:hover::after { transform: translateX(130%); }
+  .kb-dl__btn:active { transform: translateY(1px); }
+  .kb-dl__btn small {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: none;
+    color: var(--kb-dim);
+  }
+
+  .kb-dl__more {
+    margin-bottom: 22px;
+    font-size: 11px;
+    color: var(--kb-dim);
+  }
+  .kb-dl__more summary {
+    cursor: pointer;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: var(--kb-faint);
+    transition: color 0.2s ease;
+  }
+  .kb-dl__more summary:hover { color: var(--kb-bone); }
+
+  .kb-dl__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .kb-dl__list a {
+    padding: 10px 18px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--kb-dim);
+    border: 1px solid var(--kb-hair);
+    border-radius: 2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .kb-dl__list a:hover {
+    color: var(--kb-bone);
+    border-color: rgba(244, 238, 226, 0.34);
+  }
+
+  .kb-dl__note {
+    margin: 0;
+    font-size: 10.5px;
+    line-height: 1.7;
+    color: var(--kb-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kb-dl__btn, .kb-dl__btn::after { transition: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    /* ─── CHANGE THESE ─────────────────────────────────────────────── */
+    var VERSION = '0.2.0';
+    var DOWNLOADS = {
+      macArm: 'https://yoursite.com/downloads/Kizuna-Blade-0.2.0-arm64.dmg',
+      macIntel: 'https://yoursite.com/downloads/Kizuna-Blade-0.2.0.dmg',
+      windows: 'https://yoursite.com/downloads/Kizuna-Blade-Setup-0.2.0.exe',
+    };
+    /* ──────────────────────────────────────────────────────────────── */
+
+    var LABELS = {
+      macArm: { name: 'Download for Mac', sub: 'Apple Silicon · .dmg' },
+      macIntel: { name: 'Download for Mac', sub: 'Intel · .dmg' },
+      windows: { name: 'Download for Windows', sub: 'Windows 10/11 · .exe' },
+    };
+
+    /**
+     * Guess the platform. userAgentData is the only way to tell Apple Silicon
+     * from Intel without a fingerprinting hack, and it is Chromium-only — so
+     * Safari users get offered the Apple Silicon build, and the "other
+     * platforms" list is always there as the fallback.
+     */
+    function detect() {
+      var ua = navigator.userAgent;
+      var platform = (navigator.userAgentData && navigator.userAgentData.platform) || '';
+
+      if (/Win/i.test(ua) || /Windows/i.test(platform)) return 'windows';
+      if (/Mac/i.test(ua) || /macOS/i.test(platform)) {
+        // Rosetta reports Intel, so this errs toward arm64 on modern machines.
+        var isIntel = /Intel/i.test(ua) && !/OS X 1[1-9]/.test(ua);
+        return isIntel ? 'macIntel' : 'macArm';
+      }
+      return null;
+    }
+
+    var picked = detect();
+    var primary = document.getElementById('kb-primary');
+    var others = document.getElementById('kb-others');
+    var note = document.getElementById('kb-note');
+
+    function button(key, isPrimary) {
+      var a = document.createElement('a');
+      a.href = DOWNLOADS[key];
+      a.setAttribute('download', '');
+      if (isPrimary) {
+        a.className = 'kb-dl__btn';
+        a.innerHTML = LABELS[key].name + ' <small>' + LABELS[key].sub + '</small>';
+      } else {
+        a.textContent = LABELS[key].name.replace('Download for ', '') + ' · ' + LABELS[key].sub;
+      }
+      return a;
+    }
+
+    var keys = ['macArm', 'macIntel', 'windows'];
+
+    if (picked) {
+      primary.appendChild(button(picked, true));
+      keys.filter(function (k) { return k !== picked; })
+          .forEach(function (k) { others.appendChild(button(k, false)); });
+    } else {
+      // Unknown platform: show everything, pick nothing.
+      keys.forEach(function (k) { others.appendChild(button(k, false)); });
+      document.querySelector('.kb-dl__more').open = true;
+    }
+
+    note.innerHTML =
+      'Version ' + VERSION + ' · macOS 11+ / Windows 10+<br>' +
+      'The app is not code-signed yet. On macOS, right-click the app and choose ' +
+      '<strong>Open</strong> the first time. On Windows, click ' +
+      '<strong>More info</strong> then <strong>Run anyway</strong>.';
+  })();
+</script>

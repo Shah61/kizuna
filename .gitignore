@@ -1,0 +1,10 @@
+node_modules
+dist
+release
+.DS_Store
+*.log
+
+# Bundled audio is not committed — drop your own files into content/music/
+content/music/*
+!content/music/README.txt
+!content/music/.gitkeep
